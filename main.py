@@ -18,11 +18,11 @@ async def extract_text(url: str):
     # Open the PDF file and extract text
     with open('temp.pdf', 'rb') as f:
         reader = PdfReader(f)
-        num_pages = len(reader.pages)
-        text = ''
-        for page in range(num_pages):
-            page_obj = reader.pages[page]
-            text += page_obj.extract_text()
+        if len(reader.pages) > 0:
+            first_page_obj = reader.pages[0]
+            text = first_page_obj.extract_text()
+        else:
+            text = ''
 
     # Delete the temporary PDF file
     # Comment out the following line if you want to keep the downloaded file
