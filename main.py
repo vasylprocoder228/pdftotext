@@ -29,4 +29,4 @@ async def extract_text(url: str):
     import os
     os.remove('temp.pdf')
 
-    return {'text': text}
+    return {'text': text,'numberOfPages':len(reader.pages)}
