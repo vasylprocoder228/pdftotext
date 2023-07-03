@@ -1,5 +1,3 @@
 fastapi[all]
 PyPDF2
 requests
-fitz
-frontend
