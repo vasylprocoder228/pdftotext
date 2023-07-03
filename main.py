@@ -6,7 +6,7 @@ from PyPDF2 import PdfReader
 app = FastAPI()
 
 @app.post('/extract_text')
-async def extract_text(url: str):
+async def extract_text(url: str, numOfPage: int = 1):
     # Download the PDF file
     response = requests.get(url)
     if response.status_code != 200:
@@ -18,9 +18,9 @@ async def extract_text(url: str):
     # Open the PDF file and extract text
     with open('temp.pdf', 'rb') as f:
         reader = PdfReader(f)
-        if len(reader.pages) > 0:
-            first_page_obj = reader.pages[0]
-            text = first_page_obj.extract_text()
+        if 0 <= numOfPage <= len(reader.pages) - 1:
+            page_obj = reader.pages[numOfPage]
+            text = page_obj.extract_text()
         else:
             text = ''
 
@@ -29,4 +29,4 @@ async def extract_text(url: str):
     import os
     os.remove('temp.pdf')
 
-    return {'text': text,'numberOfPages':len(reader.pages)}
+    return {'text': text, 'numberOfPages': len(reader.pages)}
