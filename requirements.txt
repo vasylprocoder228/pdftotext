@@ -2,4 +2,6 @@ fastapi[all]
 PyPDF2
 requests
 io
-
+pdf2image
+pytesseract
+PIL
