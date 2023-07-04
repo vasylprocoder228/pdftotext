@@ -1,4 +1,5 @@
 import requests
+import pdfplumber
 from fastapi import FastAPI
 from fastapi import HTTPException
 from PyPDF2 import PdfReader
@@ -16,17 +17,22 @@ async def extract_text(url: str, numOfPage: int = 1):
         f.write(response.content)
 
     # Open the PDF file and extract text
-    with open('temp.pdf', 'rb') as f:
-        reader = PdfReader(f)
-        if 0 <= numOfPage <= len(reader.pages) - 1:
-            page_obj = reader.pages[numOfPage]
-            text = page_obj.extract_text()
+    with pdfplumber.open('temp.pdf') as pdf:
+        if 0 <= numOfPage <= len(pdf.pages) - 1:
+            page = pdf.pages[numOfPage]
+            extracted_text = page.extract_text()
+            extracted_html = page.extract_text(xhtml=True)
         else:
-            text = ''
+            extracted_text = ''
+            extracted_html = ''
 
     # Delete the temporary PDF file
     # Comment out the following line if you want to keep the downloaded file
     import os
     os.remove('temp.pdf')
 
-    return {'text': text, 'numberOfPages': len(reader.pages)}
+    return {
+        'text': extracted_text,
+        'html': extracted_html,
+        'numberOfPages': len(pdf.pages)
+    }
