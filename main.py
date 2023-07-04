@@ -22,7 +22,7 @@ async def extract_text(url: str, numOfPage: int = 1):
     laparams = LAParams()
 
     # Convert PDF to HTML
-    converter = HTMLConverter(resource_manager, output_string, codec='utf-8', laparams=laparams)
+    converter = HTMLConverter(resource_manager, output_string, laparams=laparams)
     interpreter = PDFPageInterpreter(resource_manager, converter)
 
     for page in PDFPage.get_pages(pdf_file):
