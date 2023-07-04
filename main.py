@@ -20,7 +20,7 @@ async def extract_text(url: str, numOfPage: int = 1):
         if 0 <= numOfPage <= len(reader.pages) - 1:
             page_obj = reader.pages[numOfPage]
             text = page_obj.extract_text()
-            images = page_obj.extract_images()
+            images = page_obj.getImageList()
         else:
             text = ''
             images = []
