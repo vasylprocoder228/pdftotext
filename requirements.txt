@@ -1,4 +1,5 @@
 fastapi[all]
 PyPDF2
 requests
-pdfplumber
+io
+
