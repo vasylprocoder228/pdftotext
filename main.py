@@ -1,9 +1,7 @@
 import requests
-import io
-import pdf2image
-import pytesseract
-from PIL import Image
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
+from fastapi import HTTPException
+from PyPDF2 import PdfReader
 
 app = FastAPI()
 
@@ -17,29 +15,18 @@ async def extract_text(url: str, numOfPage: int = 1):
     with open('temp.pdf', 'wb') as f:
         f.write(response.content)
 
-    # Convert PDF pages to images
-    images = pdf2image.convert_from_path('temp.pdf')
-
-    # Extract text from the specified page
-    if 0 <= numOfPage <= len(images) - 1:
-        image = images[numOfPage]
-        image_data = io.BytesIO()
-        image.save(image_data, format='PNG')
-        image_data.seek(0)
-        extracted_text = pytesseract.image_to_string(Image.open(image_data))
-    else:
-        extracted_text = ''
-
-    # Convert extracted text to HTML
-    extracted_html = extracted_text.replace('\n', '<br>')
+    # Open the PDF file and extract text
+    with open('temp.pdf', 'rb') as f:
+        reader = PdfReader(f)
+        if 0 <= numOfPage <= len(reader.pages) - 1:
+            page_obj = reader.pages[numOfPage]
+            text = page_obj.extract_text()
+        else:
+            text = ''
 
     # Delete the temporary PDF file
     # Comment out the following line if you want to keep the downloaded file
     import os
     os.remove('temp.pdf')
 
-    return {
-        'text': extracted_text,
-        'html': extracted_html,
-        'numberOfPages': len(images)
-    }
+    return {'text': text, 'numberOfPages': len(reader.pages)}
