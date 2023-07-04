@@ -24,12 +24,9 @@ async def extract_text(url: str, numOfPage: int = 1):
         else:
             text = ''
 
-    # Convert PDF to images and save them
-    images = convert_from_bytes(response.content)
-
     # Delete the temporary PDF file
     # Comment out the following line if you want to keep the downloaded file
     import os
     os.remove('temp.pdf')
 
-    return {'text': text, 'numberOfPages': len(reader.pages), 'images': images}
+    return {'text': text, 'numberOfPages': len(reader.pages)}
