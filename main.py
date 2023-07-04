@@ -1,12 +1,7 @@
-import io
 import requests
 from fastapi import FastAPI
 from fastapi import HTTPException
 from PyPDF2 import PdfReader
-from pdfminer.converter import HTMLConverter
-from pdfminer.layout import LAParams
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
 
 app = FastAPI()
 
@@ -14,25 +9,24 @@ app = FastAPI()
 async def extract_text(url: str, numOfPage: int = 1):
     # Download the PDF file
     response = requests.get(url)
-    pdf_file = io.BytesIO(response.content)
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Failed to download PDF")
 
-    # Set up PDFMiner objects
-    resource_manager = PDFResourceManager()
-    output_string = io.BytesIO()
-    laparams = LAParams()
+    with open('temp.pdf', 'wb') as f:
+        f.write(response.content)
 
-    # Convert PDF to HTML
-    converter = HTMLConverter(resource_manager, output_string, laparams=laparams)
-    interpreter = PDFPageInterpreter(resource_manager, converter)
+    # Open the PDF file and extract text
+    with open('temp.pdf', 'rb') as f:
+        reader = PdfReader(f)
+        if 0 <= numOfPage <= len(reader.pages) - 1:
+            page_obj = reader.pages[numOfPage]
+            text = page_obj.extract_text()
+        else:
+            text = ''
 
-    for page in PDFPage.get_pages(pdf_file):
-        interpreter.process_page(page)
+    # Delete the temporary PDF file
+    # Comment out the following line if you want to keep the downloaded file
+    import os
+    os.remove('temp.pdf')
 
-    # Get HTML content
-    html_content = output_string.getvalue().decode('utf-8')
-
-    # Clean up resources
-    converter.close()
-    output_string.close()
-
-    return {'html': html_content}
+    return {'text': text, 'numberOfPages': len(reader.pages)}
