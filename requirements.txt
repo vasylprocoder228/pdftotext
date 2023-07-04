@@ -4,4 +4,3 @@ requests
 io
 pdf2image
 pytesseract
-PIL
