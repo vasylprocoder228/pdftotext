@@ -1,5 +1,8 @@
 import io
 import requests
+from fastapi import FastAPI
+from fastapi import HTTPException
+from PyPDF2 import PdfReader
 from pdfminer.converter import HTMLConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
