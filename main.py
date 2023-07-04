@@ -1,7 +1,7 @@
 import requests
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
+from fastapi import HTTPException
 from PyPDF2 import PdfReader
-from pdf2image import convert_from_bytes
 
 app = FastAPI()
 
