@@ -4,3 +4,4 @@ requests
 pdf2image
 pdfminer
 base64
+fitz
