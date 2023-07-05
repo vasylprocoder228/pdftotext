@@ -1,32 +1,42 @@
+import fitz
+import os
+from PIL import Image
 import requests
+import base64
 from fastapi import FastAPI
-from fastapi import HTTPException
-from PyPDF2 import PdfReader
 
 app = FastAPI()
 
-@app.post('/extract_text')
-async def extract_text(url: str, numOfPage: int = 1):
-    # Download the PDF file
-    response = requests.get(url)
-    if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Failed to download PDF")
+@app.get('/convert-pdf-to-base64')
+async def convert_pdf_to_base64():
+    pdf_url = "https://www.meraas.com/en/-/mediadh/project/meraasecosystem/meraas/real-estate/central-park-thyme/finalcp_brochure-english_thyme.pdf"
+    # Step 2: Download the PDF file
+    response = requests.get(pdf_url)
+    pdf_bytes = response.content
+    pdf_file = fitz.open(stream=pdf_bytes, filetype="pdf")
+    page_nums = len(pdf_file)
+    images_list = []
+    totalLen = 0
+    for page_num in range(page_nums):
+        page_content = pdf_file[page_num]
+        images_list.extend(page_content.get_images())
 
-    with open('temp.pdf', 'wb') as f:
-        f.write(response.content)
+    result = []
+    for i, image in enumerate(images_list, start=1):
+        xref = image[0]
+        base_image = pdf_file.extract_image(xref)
+        image_bytes = base_image['image']
+        image_ext = base_image['ext']
+        image_name = str(i) + '.' + image_ext
+        base64_image = base64.b64encode(image_bytes).decode("utf-8")
+        result.append({
+            'image_name': image_name,
+            'base64_image': base64_image,
+            'base64_image_size': len(base64_image)
+        })
+        totalLen += len(base64_image)
 
-    # Open the PDF file and extract text
-    with open('temp.pdf', 'rb') as f:
-        reader = PdfReader(f)
-        if 0 <= numOfPage <= len(reader.pages) - 1:
-            page_obj = reader.pages[numOfPage]
-            text = page_obj.extract_text()
-        else:
-            text = ''
-
-    # Delete the temporary PDF file
-    # Comment out the following line if you want to keep the downloaded file
-    import os
-    os.remove('temp.pdf')
-
-    return {'text': text, 'numberOfPages': len(reader.pages)}
+    return {
+        'total_length': totalLen,
+        'images': result
+    }
