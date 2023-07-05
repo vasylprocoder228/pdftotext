@@ -3,5 +3,4 @@ PyPDF2
 requests
 pdf2image
 pdfminer
-base64
 fitz
