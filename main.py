@@ -2,6 +2,8 @@ import requests
 from fastapi import FastAPI
 from fastapi import HTTPException
 from PyPDF2 import PdfReader
+from PIL import Image
+import base64
 
 app = FastAPI()
 
