@@ -18,6 +18,7 @@ async def extract_text(url: str):
     pdf_file = fitz.open(stream=pdf_bytes, filetype="pdf")
     page_nums = len(pdf_file)
     images_list = []
+    base_list = []
     totalLen = 0
     for page_num in range(page_nums):
         page_content = pdf_file[page_num]
@@ -30,6 +31,5 @@ async def extract_text(url: str):
         image_ext = base_image['ext']
         image_name = str(i) + '.' + image_ext
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
-        print("Base64 image size:", len(base64_image))
-        totalLen += len(base64_image)
-    return("Total Length", totalLen)
+        base_list.append({"base64":base64_image})
+    return("base64", base_list)
