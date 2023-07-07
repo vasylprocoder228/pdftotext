@@ -1,6 +1,3 @@
-fastapi[all]
-PyPDF2
-requests
-pdf2image
-pdfminer
 fitz
+Pillow
+requests
