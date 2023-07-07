@@ -2,3 +2,4 @@ fastapi[all]
 PyPDF2
 requests
 Pillow
+PyMuPDF
