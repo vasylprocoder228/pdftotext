@@ -5,4 +5,3 @@ pdf2image
 pdfminer
 fitz
 uvicorn
-frontend
