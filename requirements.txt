@@ -1,4 +1,4 @@
-flask[all]
+fastapi[all]
 PyPDF2
 requests
 pdf2image
