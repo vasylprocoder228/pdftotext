@@ -10,9 +10,9 @@ from PyPDF2 import PdfReader
 app = FastAPI()
 
 @app.post('/extract_text')
-async def extract_text(url: str):
+async def extract_text(pdf_url: str):
     # Download the PDF file
-    response = requests.get(url)
+    response = requests.get(pdf_url)
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail="Failed to download PDF")
 
