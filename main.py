@@ -59,5 +59,5 @@ async def extract_text(pdf_url: str):
         image_name = str(i) + '.' + image_ext
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
         text = extract_text_from_image(image_bytes)
-        base_list.append({"imageName": image_name, "base64": base64_image, "text": text})
+        base_list.append({"imageName": image_name, "text": text})
     return("images", base_list)
