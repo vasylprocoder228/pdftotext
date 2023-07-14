@@ -6,6 +6,7 @@ import requests
 from fastapi import FastAPI
 from fastapi import HTTPException
 from PyPDF2 import PdfReader
+import pytesseract
 
 app = FastAPI()
 
@@ -33,7 +34,10 @@ async def extract_text(pdf_url: str):
     os.remove('temp.pdf')
 
     return {'text': text}
-
+def extract_text_from_image(img):
+    pil_img = Image.open(io.BytesIO(img))
+    text = pytesseract.image_to_string(pil_img)
+    return text
 @app.post('/extract_files')
 async def extract_text(pdf_url: str):
     # Step 2: Download the PDF file
@@ -54,5 +58,6 @@ async def extract_text(pdf_url: str):
         image_ext = base_image['ext']
         image_name = str(i) + '.' + image_ext
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
-        base_list.append({"imageName":image_name,"base64":base64_image})
+        text = extract_text_from_image(image_bytes)
+        base_list.append({"imageName": image_name, "base64": base64_image, "text": text})
     return("images", base_list)
