@@ -1,5 +1,6 @@
 import fitz
 import os
+import io
 from PIL import Image
 import base64
 import requests
