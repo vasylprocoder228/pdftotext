@@ -8,4 +8,4 @@ nltk
 networkx
 spacy
 numpy
-lightning==2.0.1
+lightning
