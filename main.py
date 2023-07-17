@@ -6,6 +6,7 @@ import base64
 import requests
 from fastapi import FastAPI
 from fastapi import HTTPException
+from fastapi import Body
 from PyPDF2 import PdfReader
 import pytesseract
 import nltk
@@ -15,14 +16,11 @@ from nltk.corpus import stopwords
 from nltk.cluster.util import cosine_distance
 import numpy as np
 import networkx as nx
-from pydantic import BaseModel
 
 app = FastAPI()
 nltk.download('punkt')
 nltk.download('stopwords')
 
-class Request(BaseModel):
-    textToFormat: str
 
 @app.post('/extract_text')
 async def extract_text(pdf_url: str):
@@ -80,8 +78,8 @@ async def extract_text(pdf_url: str):
     return("images", base_list)
     
 @app.post('/generate_data')
-async def extract_text(req: Request):
-    summary = generate_summary(req.textToFormat)
+async def extract_text(text_to_format: str = Body(...)):
+    summary = generate_summary(text_to_format)
     return { "formattedText" : summary }
     
 def read_article(text):
