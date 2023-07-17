@@ -82,7 +82,7 @@ async def extract_text(pdf_url: str):
 @app.post('/generate_data')
 async def extract_text(req: Request):
     summary = generate_summary(req.textToFormat)
-    return {formattedText :summary}
+    return { "formattedText" : summary }
     
 def read_article(text):
     # Split the text into sentences
