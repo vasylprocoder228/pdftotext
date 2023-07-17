@@ -1,7 +1,7 @@
 spacy
 lightning
 pydantic
-fastapi[all]
+fastapi==0.88.0
 PyPDF2
 requests
 Pillow
