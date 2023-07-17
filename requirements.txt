@@ -9,4 +9,3 @@ networkx
 spacy
 numpy
 pydantic
-lightning
