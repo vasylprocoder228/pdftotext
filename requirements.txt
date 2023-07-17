@@ -1,3 +1,4 @@
+pydantic
 fastapi[all]
 PyPDF2
 requests
