@@ -5,3 +5,6 @@ Pillow
 PyMuPDF
 pytesseract
 nltk
+networkx
+spacy
+numpy
