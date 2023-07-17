@@ -8,3 +8,4 @@ nltk
 networkx
 spacy
 numpy
+pydantic
