@@ -1,3 +1,5 @@
+spacy
+lightning
 pydantic
 fastapi[all]
 PyPDF2
@@ -7,6 +9,4 @@ PyMuPDF
 pytesseract
 nltk
 networkx
-spacy
 numpy
-lightning
