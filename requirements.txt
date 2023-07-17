@@ -1,6 +1,6 @@
 spacy
 lightning
-pydantic
+pydantic==1.9
 fastapi==0.88.0
 PyPDF2
 requests
@@ -10,3 +10,4 @@ pytesseract
 nltk
 networkx
 numpy
+starlette==0.22.0
