@@ -1,3 +1,5 @@
+import cv2
+import pytesseract
 import fitz
 import os
 import io
@@ -8,7 +10,6 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import Body
 from PyPDF2 import PdfReader
-import pytesseract
 import nltk
 import spacy
 from nltk.tokenize import sent_tokenize
@@ -43,22 +44,23 @@ async def extract_text(base64: str = Body(...)):
     textFromImage = extract_text_from_image(base64)
     return {'text': textFromImage}
 
-def extract_text_from_image(base64_image):
-    url = 'https://api.ocr-service.com/ocr'
-    headers = {'Content-Type': 'application/json'}
-    payload = {
-        'image': base64_image,
-        'language': 'eng',  # Specify the language of the text in the image
-    }
-    
-    # Send the request to the OCR service
-    response = requests.post(url, json=payload, headers=headers)
-    response_data = response.json()
-    
-    # Extract the text from the response
-    extracted_text = response_data['text']
-    
-    print(extracted_text)
+def extract_text_from_image(base64_string):
+    # Decode the base64 string into binary data
+    image_data = base64.b64decode(base64_string)
+
+    # Convert binary data to numpy array
+    np_array = np.frombuffer(image_data, np.uint8)
+
+    # Read the image using OpenCV
+    image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+
+    # Convert the image to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Use pytesseract to extract text from the image
+    extracted_text = pytesseract.image_to_string(gray)
+
+    return extracted_text
     
 @app.post('/extract_files')
 async def extract_text(pdf_url: str):
