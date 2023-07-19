@@ -11,3 +11,4 @@ nltk
 networkx
 numpy
 starlette==0.22.0
+scipy
