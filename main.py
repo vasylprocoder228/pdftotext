@@ -80,8 +80,7 @@ async def extract_text(pdf_url: str):
         image_ext = base_image['ext']
         image_name = str(i) + '.' + image_ext
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
-        image_text = extract_text_from_base64(base64_image)
-        base_list.append({"imageName": image_name,"text":image_text, "base64": base64_image})
+        base_list.append({"imageName": image_name, "base64": base64_image})
     return("images", base_list)
     
 @app.post('/generate_data')
