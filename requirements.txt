@@ -1,4 +1,3 @@
-spacy
 lightning
 pydantic==1.9
 fastapi==0.88.0
