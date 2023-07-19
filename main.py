@@ -48,7 +48,7 @@ def extract_text_from_base64(base64_string):
     bytes_data = base64.b64decode(base64_string)
     
     # Load image or PDF from bytes data
-    image_or_pdf = BytesIO(bytes_data)
+    image_or_pdf = io.BytesIO(bytes_data)
     
     # Initialize the OCR reader
     reader = easyocr.Reader(['en'])
