@@ -44,15 +44,21 @@ async def extract_text(base64: str = Body(...)):
     return {'text': textFromImage}
 
 def extract_text_from_image(base64_image):
-    # Decode the Base64 image
-    decoded_image = base64.b64decode(base64_image)
+    url = 'https://api.ocr-service.com/ocr'
+    headers = {'Content-Type': 'application/json'}
+    payload = {
+        'image': base64_image,
+        'language': 'eng',  # Specify the language of the text in the image
+    }
     
-    # Open the image using PIL
-    image = Image.open(io.BytesIO(decoded_image))
+    # Send the request to the OCR service
+    response = requests.post(url, json=payload, headers=headers)
+    response_data = response.json()
     
-    # Perform OCR using pytesseract
-    extracted_text = pytesseract.image_to_string(image)
-    return extracted_text
+    # Extract the text from the response
+    extracted_text = response_data['text']
+    
+    print(extracted_text)
     
 @app.post('/extract_files')
 async def extract_text(pdf_url: str):
