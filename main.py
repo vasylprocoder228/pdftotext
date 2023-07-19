@@ -9,19 +9,23 @@ from fastapi import HTTPException
 from fastapi import Body
 from PyPDF2 import PdfReader
 import pytesseract
-
+import nltk
+import spacy
+from nltk.tokenize import sent_tokenize
+from nltk.corpus import stopwords
+from nltk.cluster.util import cosine_distance
+import numpy as np
+import networkx as nx
 app = FastAPI()
-
-
+nltk.download('punkt')
+nltk.download('stopwords')
 @app.post('/extract_text')
 async def extract_text(pdf_url: str):
     response = requests.get(pdf_url)
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail="Failed to download PDF")
-
     with open('temp.pdf', 'wb') as f:
         f.write(response.content)
-
     # Open the PDF file and extract text
     with open('temp.pdf', 'rb') as f:
         reader = PdfReader(f)
@@ -33,7 +37,7 @@ async def extract_text(pdf_url: str):
     os.remove('temp.pdf')
 
     return {'text': text}
-    
+
 @app.post('/extract_text_from_image')
 async def extract_text(base64: str = Body(...)):
     textFromImage = extract_text_from_image(base64)
@@ -71,6 +75,81 @@ async def extract_text(pdf_url: str):
         image_name = str(i) + '.' + image_ext
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
         image_text = extract_text_from_image(base64_image)
-        base_list.append({"imageName": image_name,"text": image_text, "base64": base64_image})
+        base_list.append({"imageName": image_name,"text":image_text, "base64": base64_image})
     return("images", base_list)
     
+@app.post('/generate_data')
+async def extract_text(text_to_format: str = Body(...)):
+    summary = generate_summary(text_to_format)
+    return { "formattedText" : summary }
+    
+def read_article(text):
+    # Split the text into sentences
+    sentences = sent_tokenize(text)
+    return sentences
+def sentence_similarity(sent1, sent2, stopwords=None):
+    if stopwords is None:
+        stopwords = []
+    # Convert sentences to lowercase and tokenize them
+    sent1 = [w.lower() for w in sent1]
+    sent2 = [w.lower() for w in sent2]
+    # Remove stopwords from sentences
+    sent1 = [w for w in sent1 if w not in stopwords]
+    sent2 = [w for w in sent2 if w not in stopwords]
+    # Calculate sentence similarity using cosine distance
+    all_words = list(set(sent1 + sent2))
+    vector1 = [0] * len(all_words)
+    vector2 = [0] * len(all_words)
+    # Build term frequency vectors
+    for w in sent1:
+        vector1[all_words.index(w)] += 1
+    for w in sent2:
+        vector2[all_words.index(w)] += 1
+    return 1 - cosine_distance(vector1, vector2)
+def build_similarity_matrix(sentences, stopwords):
+    # Create an empty similarity matrix
+    similarity_matrix = np.zeros((len(sentences), len(sentences)))
+    for i in range(len(sentences)):
+        for j in range(len(sentences)):
+            if i != j:
+                similarity_matrix[i][j] = sentence_similarity(sentences[i], sentences[j], stopwords)
+    return similarity_matrix
+def extract_keywords(text):
+    # Load spaCy model
+    nlp = spacy.load('en_core_web_sm')
+    # Tokenize text into sentences
+    sentences = sent_tokenize(text)
+    # Extract entities from each sentence
+    keywords = []
+    for sentence in sentences:
+        doc = nlp(sentence)
+        entities = [entity.text for entity in doc.ents if entity.label_ in ['QUANTITY', 'DATE', 'CARDINAL', 'MONEY']]
+        keywords.extend(entities)
+    return keywords
+def generate_summary(text):
+    # Read the text and tokenize it into sentences
+    sentences = read_article(text)
+    # Remove stopwords from sentences
+    stop_words = stopwords.words('english')
+    sentence_similarity_matrix = build_similarity_matrix(sentences, stop_words)
+    # Use PageRank algorithm to rank sentences
+    sentence_similarity_graph = nx.from_numpy_array(sentence_similarity_matrix)
+    scores = nx.pagerank(sentence_similarity_graph)
+    # Set the number of summary sentences based on the number of sentences in the text
+    num_summary_sentences = min(3, len(sentences))
+    # Extract keywords from the text
+    keywords = extract_keywords(text)
+    # Identify sentences containing keywords
+    keyword_sentences = []
+    if keywords:
+        for sentence in sentences:
+            if any(keyword in sentence.lower() for keyword in keywords):
+                keyword_sentences.append(sentence)
+    # Sort the sentences based on their scores
+    ranked_sentences = sorted(((scores[i], s) for i, s in enumerate(sentences)), reverse=True)
+    # Select the top 'num_summary_sentences' sentences as the summary
+    summary_sentences = [s for _, s in ranked_sentences[:num_summary_sentences]]
+    # Include keyword sentences in the summary
+    summary_sentences += keyword_sentences
+    summary = ' '.join(summary_sentences)
+    return summary
