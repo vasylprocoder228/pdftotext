@@ -6,7 +6,6 @@ PyPDF2
 requests
 Pillow
 PyMuPDF
-cv2
 pytesseract
 nltk
 networkx
