@@ -43,6 +43,11 @@ async def extract_text(pdf_url: str):
 
     return {'text': text}
     
+@app.post('/extract_text_from_image')
+async def extract_text(base64: str = Body(...)):
+    textFromImage = extract_text_from_image(base64)
+    return {'text': textFromImage}
+
 def extract_text_from_image(base64_image):
     # Decode the Base64 image
     decoded_image = base64.b64decode(base64_image)
