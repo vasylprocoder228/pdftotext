@@ -1,5 +1,4 @@
-import cv2
-import pytesseract
+import easyocr
 import fitz
 import os
 import io
@@ -41,26 +40,25 @@ async def extract_text(pdf_url: str):
 
 @app.post('/extract_text_from_image')
 async def extract_text(base64: str = Body(...)):
-    textFromImage = extract_text_from_image(base64)
+    textFromImage = extract_text_from_base64(base64)
     return {'text': textFromImage}
 
-def extract_text_from_image(base64_string):
-    # Decode the base64 string into binary data
-    image_data = base64.b64decode(base64_string)
+def extract_text_from_base64(base64_string):
+    # Decode base64 string to bytes
+    bytes_data = base64.b64decode(base64_string)
+    
+    # Load image or PDF from bytes data
+    image_or_pdf = BytesIO(bytes_data)
+    
+    # Initialize the OCR reader
+    reader = easyocr.Reader(['en'])
+    
+    # Read text from the image or PDF
+    result = reader.readtext(image_or_pdf, detail=0)
+    
+    # Return the extracted text
+    return result
 
-    # Convert binary data to numpy array
-    np_array = np.frombuffer(image_data, np.uint8)
-
-    # Read the image using OpenCV
-    image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
-
-    # Convert the image to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # Use pytesseract to extract text from the image
-    extracted_text = pytesseract.image_to_string(gray)
-
-    return extracted_text
     
 @app.post('/extract_files')
 async def extract_text(pdf_url: str):
@@ -82,7 +80,7 @@ async def extract_text(pdf_url: str):
         image_ext = base_image['ext']
         image_name = str(i) + '.' + image_ext
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
-        image_text = extract_text_from_image(base64_image)
+        image_text = extract_text_from_base64(base64_image)
         base_list.append({"imageName": image_name,"text":image_text, "base64": base64_image})
     return("images", base_list)
     
