@@ -12,4 +12,7 @@ networkx
 numpy
 starlette==0.22.0
 scipy
-opencv-python
+torch
+torchvision
+torchaudio
+easyocr
