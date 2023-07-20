@@ -39,7 +39,7 @@ async def extract_text(pdf_url: str):
     return {'text': text}
 
 @app.post('/extract_text_from_image')
-async def extract_text(base64: str = Body(...)):
+async def extract_text_from_image(base64: str = Body(...)):
     textFromImage = extract_text_from_base64(base64)
     return {'text': textFromImage}
 
@@ -64,7 +64,7 @@ def extract_text_from_base64(base64_string):
 
     
 @app.post('/extract_files')
-async def extract_text(pdf_url: str):
+async def extract_files(pdf_url: str):
     # Step 2: Download the PDF file
     response = requests.get(pdf_url)
     pdf_bytes = response.content
@@ -87,7 +87,7 @@ async def extract_text(pdf_url: str):
     return("images", base_list)
     
 @app.post('/generate_data')
-async def extract_text(text_to_format: str = Body(...)):
+async def generate_data(text_to_format: str = Body(...)):
     summary = generate_summary(text_to_format)
     return { "formattedText" : summary }
     
