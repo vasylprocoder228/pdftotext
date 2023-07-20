@@ -47,17 +47,20 @@ def extract_text_from_base64(base64_string):
     # Decode base64 string to bytes
     bytes_data = base64.b64decode(base64_string)
     
-    # Load image or PDF from bytes data
-    image_or_pdf = io.BytesIO(bytes_data)
+    # Convert bytes data to a PIL image
+    image = Image.open(io.BytesIO(bytes_data))
+    
+    # Convert PIL image to numpy array
+    image_np = np.array(image)
     
     # Initialize the OCR reader
     reader = easyocr.Reader(['en'])
     
-    # Read text from the image or PDF
-    result = reader.readtext(image_or_pdf, detail=0)
+    # Read text from the image
+    result = reader.readtext(image_np, detail=0)
     
     # Return the extracted text
-    return result
+    return "".join(result)
 
     
 @app.post('/extract_files')
