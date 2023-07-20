@@ -38,6 +38,24 @@ async def extract_text(pdf_url: str):
 
     return {'text': text}
 
+@app.post('/extract_text_from_pdf_blob')
+async def extract_text_from_pdf_blob(pdf_base64: str = Body(...)):
+    try:
+        pdf_content = base64.b64decode(pdf_base64)
+    except binascii.Error:
+        raise HTTPException(status_code=400, detail="Invalid base64 format")
+
+    # Open the PDF content and extract text
+    with io.BytesIO(pdf_content) as f:
+        reader = PdfReader(f)
+        num_pages = len(reader.pages)
+        text = ''
+        for page in range(num_pages):
+            page_obj = reader.pages[page]
+            text += page_obj.extract_text()
+
+    return {'text': text}
+
 @app.post('/extract_text_from_image')
 async def extract_text_from_image(base64: str = Body(...)):
     textFromImage = extract_text_from_base64(base64)
