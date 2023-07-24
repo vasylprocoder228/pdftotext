@@ -69,7 +69,7 @@ async def extract_files(pdf_url: str):
         base_list.append({"imageName": image_name, "base64": base64_image})
     return("images", base_list)
 
-def extract_text_from_pdf_blob(pdf_bytes: bytes):
+def extract_text_from_pdf_blob(pdf_bytes):
     try:
         with io.BytesIO(pdf_bytes) as f:
             reader = PdfReader(f)
@@ -86,7 +86,7 @@ def is_pdf(file_bytes):
     pdf_signature = b'%PDF'
     return file_bytes.startswith(pdf_signature)
 
-def extract_text_from_base64(base64_bytes: bytes)
+def extract_text_from_base64(base64_bytes)
     # Convert bytes data to a PIL image
     image = Image.open(io.BytesIO(base64_bytes))
     
