@@ -9,11 +9,6 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import Body
 from PyPDF2 import PdfReader
-import nltk
-import spacy
-from nltk.tokenize import sent_tokenize
-from nltk.corpus import stopwords
-from nltk.cluster.util import cosine_distance
 import numpy as np
 import networkx as nx
 
