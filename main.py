@@ -35,52 +35,17 @@ async def extract_text(pdf_url: str):
             page_obj = reader.pages[page]
             text += page_obj.extract_text()
     os.remove('temp.pdf')
-
     return {'text': text}
 
-@app.post('/extract_text_from_pdf_blob')
-async def extract_text_from_pdf_blob(pdf_base64: str = Body(...)):
-    try:
-        pdf_content = base64.b64decode(pdf_base64)
-    except binascii.Error:
-        raise HTTPException(status_code=400, detail="Invalid base64 format")
+@app.post('/extract_text_from_blob')    
+async def process_file(base64_content: str = Body(...)):
+    file_bytes = base64.b64decode(base64_content)
+    if is_pdf(file_bytes):
+        return extract_text_from_pdf_blob(base64_content)
+    else:
+        textFromImage = extract_text_from_base64(base64_content)
+        return {'text': textFromImage}
 
-    # Open the PDF content and extract text
-    with io.BytesIO(pdf_content) as f:
-        reader = PdfReader(f)
-        num_pages = len(reader.pages)
-        text = ''
-        for page in range(num_pages):
-            page_obj = reader.pages[page]
-            text += page_obj.extract_text()
-
-    return {'text': text}
-
-@app.post('/extract_text_from_image')
-async def extract_text_from_image(base64: str = Body(...)):
-    textFromImage = extract_text_from_base64(base64)
-    return {'text': textFromImage}
-
-def extract_text_from_base64(base64_string):
-    # Decode base64 string to bytes
-    bytes_data = base64.b64decode(base64_string)
-    
-    # Convert bytes data to a PIL image
-    image = Image.open(io.BytesIO(bytes_data))
-    
-    # Convert PIL image to numpy array
-    image_np = np.array(image)
-    
-    # Initialize the OCR reader
-    reader = easyocr.Reader(['en'])
-    
-    # Read text from the image
-    result = reader.readtext(image_np, detail=0)
-    
-    # Return the extracted text
-    return "".join(result)
-
-    
 @app.post('/extract_files')
 async def extract_files(pdf_url: str):
     # Step 2: Download the PDF file
@@ -103,4 +68,43 @@ async def extract_files(pdf_url: str):
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
         base_list.append({"imageName": image_name, "base64": base64_image})
     return("images", base_list)
+
+def extract_text_from_pdf_blob(pdf_base64):
+    try:
+        pdf_content = base64.b64decode(pdf_base64)
+    except binascii.Error:
+        raise HTTPException(status_code=400, detail="Invalid base64 format")
+    with io.BytesIO(pdf_content) as f:
+        reader = PdfReader(f)
+        num_pages = len(reader.pages)
+        text = ''
+        for page in range(num_pages):
+            page_obj = reader.pages[page]
+            text += page_obj.extract_text()
+
+    return {'text': text}
+
+def is_pdf(file_bytes):
+    pdf_signature = b'%PDF'
+    return file_bytes.startswith(pdf_signature)
+
+def extract_text_from_base64(base64_string):
+    # Decode base64 string to bytes
+    bytes_data = base64.b64decode(base64_string)
+    
+    # Convert bytes data to a PIL image
+    image = Image.open(io.BytesIO(bytes_data))
+    
+    # Convert PIL image to numpy array
+    image_np = np.array(image)
+    
+    # Initialize the OCR reader
+    reader = easyocr.Reader(['en'])
+    
+    # Read text from the image
+    result = reader.readtext(image_np, detail=0)
+    
+    # Return the extracted text
+    return "".join(result)
+
     
