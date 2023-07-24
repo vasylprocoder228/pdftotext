@@ -86,7 +86,7 @@ def is_pdf(file_bytes):
     pdf_signature = b'%PDF'
     return file_bytes.startswith(pdf_signature)
 
-def extract_text_from_base64(base64_bytes)
+def extract_text_from_base64(base64_bytes):
     # Convert bytes data to a PIL image
     image = Image.open(io.BytesIO(base64_bytes))
     
