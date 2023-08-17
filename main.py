@@ -11,6 +11,7 @@ from fastapi import Body
 from PyPDF2 import PdfReader
 import numpy as np
 import networkx as nx
+import json
 
 app = FastAPI()
 
