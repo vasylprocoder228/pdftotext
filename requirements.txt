@@ -16,3 +16,4 @@ torch
 torchvision
 torchaudio
 easyocr
+json
