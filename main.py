@@ -12,7 +12,6 @@ app = FastAPI()
 async def call_dp_login_api():
     url = "https://dubaiproperties.my.site.com/services/apexrest/DPLogin"
     headers = {'Content-Type': 'application/json'}
-@@ -17,11 +15,6 @@ async def call_dp_login_api():
 
     response = requests.post(url, headers=headers, data=json.dumps(body))
 
