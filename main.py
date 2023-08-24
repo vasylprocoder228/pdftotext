@@ -8,10 +8,13 @@ import json
 app = FastAPI()
 
 @app.post('/extract_text')
-@app.post("/extract_text")
 async def call_dp_login_api():
     url = "https://dubaiproperties.my.site.com/services/apexrest/DPLogin"
     headers = {'Content-Type': 'application/json'}
+    body = {
+        "SFusername":"eloquaintegrationuser@dpg.com.prod",
+        "SFpassword":"sfmcdp2022vWl88ybT0rO8jgRTQ5edwpSU"
+    }
 
     response = requests.post(url, headers=headers, data=json.dumps(body))
 
