@@ -3,6 +3,8 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import Body
 from fastapi import FastAPI, HTTPException
+import os.path
+import base64
 import json
 
 app = FastAPI()
@@ -29,3 +31,18 @@ async def call_dp_login_api():
     if response.status_code != 200:
         raise HTTPException(status_code=400, detail="API request failed")
     return response.json()
+    
+@app.post('/extract_blob_extention')
+async def get_file_details(url):
+    response = requests.get(url)
+    file_content = response.content
+    file_extension = os.path.splitext(url)[1]
+
+    base64_content = base64.b64encode(file_content).decode('utf-8')
+
+    file_details = {
+        'base64': base64_content,
+        'extension': file_extension
+    }
+
+    return file_details
