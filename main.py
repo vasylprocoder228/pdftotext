@@ -33,7 +33,7 @@ async def call_dp_login_api():
     return response.json()
     
 @app.post('/extract_blob_extention')
-async def get_file_details(url):
+async def get_file_details(url: str):
     response = requests.get(url)
     file_content = response.content
     file_extension = os.path.splitext(url)[1]
