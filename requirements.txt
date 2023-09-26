@@ -1,3 +1,13 @@
 fastapi==0.65.2
 requests==2.26.0
 uvicorn==0.15.0
+spacy
+lightning
+pydantic
+pydantic==1.9
+PyPDF2
+@@ -10,3 +10,4 @@ pytesseract
+nltk
+networkx
+numpy
+starlette==0.22.0
