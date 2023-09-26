@@ -1,63 +1,30 @@
+import easyocr
+import fitz
+import os
+import io
+from PIL import Image
+import base64
 import requests
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import Body
-from fastapi import FastAPI, HTTPException
+from PyPDF2 import PdfReader
 import nltk
 import spacy
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
 from nltk.cluster.util import cosine_distance
-import os.path
-import base64
-import json
 import numpy as np
 import networkx as nx
 
 app = FastAPI()
 
 @app.post('/extract_text')
-async def call_dp_login_api():
-    url = "https://dubaiproperties.my.site.com/services/apexrest/DPLogin"
-    headers = {'Content-Type': 'application/json'}
-    body = {
-        "SFusername":"eloquaintegrationuser@dpg.com.prod",
-        "SFpassword":"sfmcdp2022vWl88ybT0rO8jgRTQ5edwpSU"
-    }
-
-    response = requests.post(url, headers=headers, data=json.dumps(body))
-
-    # Always good to print out the status code for debugging
-    print(f"Status code: {response.status_code}")
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return None
-
-    if response.status_code != 200:
-        raise HTTPException(status_code=400, detail="API request failed")
-    return response.json()
-    
-@app.post('/extract_blob_extention')
-async def get_file_details(url: str):
-    response = requests.get(url)
-    file_content = response.content
-    file_extension = os.path.splitext(url)[1]
-
-    base64_content = base64.b64encode(file_content).decode('utf-8')
-
-    file_details = {
-        'base64': base64_content,
-        'extension': file_extension
-    }
-
-    return file_details
-    
-@app.post('/extract_text')
 async def extract_text(pdf_url: str):
     response = requests.get(pdf_url)
     if response.status_code != 200:
+        raise HTTPException(status_code=400, detail="API request failed")
+    return response.json()
         raise HTTPException(status_code=response.status_code, detail="Failed to download PDF")
     with open('temp.pdf', 'wb') as f:
         f.write(response.content)
@@ -71,7 +38,6 @@ async def extract_text(pdf_url: str):
             text += page_obj.extract_text()
     os.remove('temp.pdf')
     return {'text': text}
-    
 @app.post('/extract_text_from_blob')    
 async def process_file(base64_content: str = Body(...)):
     file_bytes = base64.b64decode(base64_content)
@@ -80,7 +46,6 @@ async def process_file(base64_content: str = Body(...)):
     else:
         text_from_image = extract_text_from_base64(file_bytes)
         return {'text': text_from_image}
-        
 @app.post('/extract_files')
 async def extract_files(pdf_url: str):
     # Step 2: Download the PDF file
@@ -103,7 +68,6 @@ async def extract_files(pdf_url: str):
         base64_image = base64.b64encode(image_bytes).decode("utf-8")
         base_list.append({"imageName": image_name, "base64": base64_image})
     return("images", base_list)
-    
 def extract_text_from_pdf_blob(pdf_bytes):
     try:
         with io.BytesIO(pdf_bytes) as f:
@@ -116,23 +80,21 @@ def extract_text_from_pdf_blob(pdf_bytes):
     except binascii.Error:
         raise HTTPException(status_code=400, detail="Invalid base64 format")
     return {'text': text}
-    
 def is_pdf(file_bytes):
     pdf_signature = b'%PDF'
     return file_bytes.startswith(pdf_signature)
-    
 def extract_text_from_base64(base64_bytes):
     # Convert bytes data to a PIL image
     image = Image.open(io.BytesIO(base64_bytes))
-    
+
     # Convert PIL image to numpy array
     image_np = np.array(image)
-    
+
     # Initialize the OCR reader
     reader = easyocr.Reader(['en'])
-    
+
     # Read text from the image
     result = reader.readtext(image_np, detail=0)
-    
+
     # Return the extracted text as a single string
     return "".join(result)
