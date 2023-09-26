@@ -23,8 +23,6 @@ app = FastAPI()
 async def extract_text(pdf_url: str):
     response = requests.get(pdf_url)
     if response.status_code != 200:
-        raise HTTPException(status_code=400, detail="API request failed")
-    return response.json()
         raise HTTPException(status_code=response.status_code, detail="Failed to download PDF")
     with open('temp.pdf', 'wb') as f:
         f.write(response.content)
