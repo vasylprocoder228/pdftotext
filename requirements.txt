@@ -5,7 +5,9 @@ spacy
 lightning
 pydantic==1.9
 PyPDF2
-@@ -10,3 +10,4 @@ pytesseract
+Pillow
+PyMuPDF
+pytesseract
 nltk
 networkx
 numpy
